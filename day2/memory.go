@@ -14,7 +14,8 @@ func NewMemory() *Memory {
 }
 
 func (m *Memory) Load(cells []uint32) {
-	m.cells = cells
+	m.cells = make([]uint32, len(cells))
+	copy(m.cells, cells)
 }
 
 func (m *Memory) Get(index uint32) uint32 {
