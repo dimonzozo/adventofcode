@@ -2,18 +2,16 @@ package main
 
 import (
 	"github.com/dimonzozo/adventofcode/common"
+	"github.com/sirupsen/logrus"
 	"math"
 	"strconv"
-	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	sumFuel := 0
 	totalFuel := 0
 
-	for _, mass := range strings.Split(common.Input(), "\n") {
+	for _, mass := range common.Input() {
 		if mass == "" {
 			continue
 		}

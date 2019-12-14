@@ -10,8 +10,7 @@ import (
 func main() {
 	logger := logrus.WithField("method", "main")
 
-	instructions := strings.Split(common.Input(), "\n")[0]
-	dataArr := strings.Split(instructions, ",")
+	dataArr := strings.Split(common.Input()[0], ",")
 	cells := make([]uint32, len(dataArr))
 	for k, v := range dataArr {
 		cell, _ := strconv.ParseUint(v, 10, 32)
