@@ -1,36 +1,30 @@
 package main
 
 type Grid struct {
-	grid [][]byte
+	grid map[Point]struct{}
 }
 
-func NewGrid(width uint32, height uint32) Grid {
-	grid := make([][]byte, height)
-	for i := range grid {
-		grid[i] = make([]byte, width)
-	}
-
-	return Grid{grid: grid}
+func NewGrid() Grid {
+	return Grid{grid: make(map[Point]struct{})}
 }
 
-func (g *Grid) Get(x uint32, y uint32) byte {
-	return g.grid[y][x]
+func (g *Grid) Set(point Point) {
+	g.grid[point] = struct{}{}
 }
 
-func (g *Grid) Set(x uint32, y uint32, value byte) {
-	g.grid[y][x] = value
-}
+func (g *Grid) FindIntersections(other Grid) []Point {
+	intersections := make([]Point, 0)
 
-func (g *Grid) FindIntersections(other Grid) []Coordinate {
-	coordinates := make([]Coordinate, 0)
-
-	for y, xes := range g.grid {
-		for x, val := range xes {
-			if val == 1 && other.Get(uint32(x), uint32(y)) == 1 {
-				coordinates = append(coordinates, Coordinate{X: x, Y: y})
-			}
+	for point := range g.grid {
+		if other.Exists(point) {
+			intersections = append(intersections, point)
 		}
 	}
 
-	return coordinates
+	return intersections
+}
+
+func (g *Grid) Exists(point Point) bool {
+	_, ok := g.grid[point]
+	return ok
 }

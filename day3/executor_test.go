@@ -38,13 +38,13 @@ func TestExecuteCommand(t *testing.T) {
 		commands := ParseCommands(commandsStr)
 		commandsStr2 := strings.Split(testCase.Input2, ",")
 		commands2 := ParseCommands(commandsStr2)
-		initPos := Coordinate{250, 250}
+		initPos := Point{250, 250}
 
-		wire1Grid := NewGrid(500, 500)
+		wire1Grid := NewGrid()
 		executor1 := NewExecutor(initPos)
 		executor1.ExecuteCommands(commands, SetGridAction(wire1Grid))
 
-		wire2Grid := NewGrid(500, 500)
+		wire2Grid := NewGrid()
 		executor2 := NewExecutor(initPos)
 		executor2.ExecuteCommands(commands2, SetGridAction(wire2Grid))
 

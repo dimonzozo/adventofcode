@@ -1,6 +1,6 @@
 package main
 
-type Coordinate struct {
+type Point struct {
 	X int
 	Y int
 }

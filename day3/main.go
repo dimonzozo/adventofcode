@@ -8,12 +8,7 @@ import (
 	"strings"
 )
 
-const (
-	GridWidth  = 20000
-	GridHeight = 20000
-)
-
-var initPos = Coordinate{10000, 10000}
+var initPos = Point{0, 0}
 
 func main() {
 	logger := logrus.WithField("method", "main")
@@ -21,15 +16,15 @@ func main() {
 	commands1 := ParseCommands(strings.Split(common.Input()[0], ","))
 	commands2 := ParseCommands(strings.Split(common.Input()[1], ","))
 
-	wire1Grid := NewGrid(GridWidth, GridHeight)
+	wire1Grid := NewGrid()
 	executor1 := NewExecutor(initPos)
 	executor1.ExecuteCommands(commands1, SetGridAction(wire1Grid))
 
-	wire2Grid := NewGrid(GridWidth, GridHeight)
+	wire2Grid := NewGrid()
 	executor2 := NewExecutor(initPos)
 	executor2.ExecuteCommands(commands2, SetGridAction(wire2Grid))
 
-	intersections :=  wire1Grid.FindIntersections(wire2Grid)
+	intersections := wire1Grid.FindIntersections(wire2Grid)
 
 	logger.Infof("Result part 1: %d", FindClosestIntersectionDistance(intersections, initPos))
 
@@ -52,8 +47,7 @@ func main() {
 	logger.Infof("Result part 2: %d", wireDistances[0])
 }
 
-
-func FindClosestIntersectionDistance(intersections []Coordinate, pos Coordinate) int {
+func FindClosestIntersectionDistance(intersections []Point, pos Point) int {
 	distances := make([]int, 0)
 
 	for _, intersection := range intersections {
