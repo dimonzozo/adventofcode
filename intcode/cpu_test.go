@@ -61,3 +61,73 @@ func TestCpu_Run(t *testing.T) {
 		}
 	}
 }
+
+func TestJumpsAndCompares(t *testing.T) {
+	prog1 := "3,9,8,9,10,9,4,9,99,-1,8"
+	prog2 := "3,9,7,9,10,9,4,9,99,-1,8"
+	prog3 := "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99"
+
+	testCases := []struct {
+		Instructions    string
+		Inputs          []Input
+		ExpectedOutputs []Output
+	}{
+		{
+			Instructions:    prog1,
+			Inputs:          []Input{8},
+			ExpectedOutputs: []Output{1},
+		},
+		{
+			Instructions:    prog1,
+			Inputs:          []Input{6},
+			ExpectedOutputs: []Output{0},
+		},
+		{
+			Instructions:    prog2,
+			Inputs:          []Input{7},
+			ExpectedOutputs: []Output{1},
+		},
+		{
+			Instructions:    prog2,
+			Inputs:          []Input{9},
+			ExpectedOutputs: []Output{0},
+		},
+		{
+			Instructions:    prog3,
+			Inputs:          []Input{7},
+			ExpectedOutputs: []Output{999},
+		},
+		{
+			Instructions:    prog3,
+			Inputs:          []Input{8},
+			ExpectedOutputs: []Output{1000},
+		},
+		{
+			Instructions:    prog3,
+			Inputs:          []Input{55},
+			ExpectedOutputs: []Output{1001},
+		},
+	}
+
+	for _, testCase := range testCases {
+		dataArr := strings.Split(testCase.Instructions, ",")
+		cells := make([]int, len(dataArr))
+		for k, v := range dataArr {
+			cell, _ := strconv.ParseInt(v, 10, 32)
+			cells[k] = int(cell)
+		}
+
+		memory := NewMemory()
+		memory.Load(cells)
+
+		cpu := NewCpu(memory)
+		cpu.SetInputs(testCase.Inputs)
+		cpu.Run()
+
+		for i, o := range cpu.Outputs() {
+			if o != testCase.ExpectedOutputs[i] {
+				t.Fatalf("Expected output to be %v, but got %v", testCase.ExpectedOutputs, cpu.Outputs())
+			}
+		}
+	}
+}

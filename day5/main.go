@@ -24,5 +24,12 @@ func main() {
 	cpu.SetInputs([]intcode.Input{1})
 	cpu.Run()
 
-	logger.Infof("Result: %v", cpu.Outputs())
+	logger.Infof("Result(part1): %v", cpu.Outputs())
+
+	memory.Load(cells)
+	cpu = intcode.NewCpu(memory)
+	cpu.SetInputs([]intcode.Input{5})
+	cpu.Run()
+
+	logger.Infof("Result(part2): %v", cpu.Outputs())
 }

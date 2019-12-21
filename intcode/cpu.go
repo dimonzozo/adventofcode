@@ -12,11 +12,15 @@ type Output int
 type OpCode uint16
 
 const (
-	OpCodeAdd    OpCode = 1
-	OpCodeMul    OpCode = 2
-	OpCodeInput  OpCode = 3
-	OpCodeOutput OpCode = 4
-	OpCodeHalt   OpCode = 99
+	OpCodeAdd         OpCode = 1
+	OpCodeMul         OpCode = 2
+	OpCodeInput       OpCode = 3
+	OpCodeOutput      OpCode = 4
+	OpCodeJumpIfTrue  OpCode = 5
+	OpCodeJumpIfFalse OpCode = 6
+	OpCodeLessThan    OpCode = 7
+	OpCodeEquals      OpCode = 8
+	OpCodeHalt        OpCode = 99
 )
 
 type Cpu struct {
@@ -49,36 +53,28 @@ LOOP:
 		switch opCode {
 		case OpCodeAdd:
 			data := c.memory.GetRange(c.ip+1, c.ip+4)
-			parameters := []Parameter{
-				NewParamenter(data[0], parameterModes[0]),
-				NewParamenter(data[1], parameterModes[1]),
-				NewParamenter(data[2], parameterModes[2]),
-			}
-			c.add(parameters)
-			c.ip += 4
+			c.add(c.buildParameters(data, parameterModes))
 		case OpCodeMul:
 			data := c.memory.GetRange(c.ip+1, c.ip+4)
-			parameters := []Parameter{
-				NewParamenter(data[0], parameterModes[0]),
-				NewParamenter(data[1], parameterModes[1]),
-				NewParamenter(data[2], parameterModes[2]),
-			}
-			c.mul(parameters)
-			c.ip += 4
+			c.mul(c.buildParameters(data, parameterModes))
 		case OpCodeInput:
 			data := c.memory.GetRange(c.ip+1, c.ip+2)
-			parameters := []Parameter{
-				NewParamenter(data[0], parameterModes[0]),
-			}
-			c.input(parameters)
-			c.ip += 2
+			c.input(c.buildParameters(data, parameterModes))
 		case OpCodeOutput:
 			data := c.memory.GetRange(c.ip+1, c.ip+2)
-			parameters := []Parameter{
-				NewParamenter(data[0], parameterModes[0]),
-			}
-			c.output(parameters)
-			c.ip += 2
+			c.output(c.buildParameters(data, parameterModes))
+		case OpCodeJumpIfTrue:
+			data := c.memory.GetRange(c.ip+1, c.ip+3)
+			c.jumpIfTrue(c.buildParameters(data, parameterModes))
+		case OpCodeJumpIfFalse:
+			data := c.memory.GetRange(c.ip+1, c.ip+3)
+			c.jumpIfFalse(c.buildParameters(data, parameterModes))
+		case OpCodeLessThan:
+			data := c.memory.GetRange(c.ip+1, c.ip+4)
+			c.lessThan(c.buildParameters(data, parameterModes))
+		case OpCodeEquals:
+			data := c.memory.GetRange(c.ip+1, c.ip+4)
+			c.equals(c.buildParameters(data, parameterModes))
 		case OpCodeHalt:
 			break LOOP
 		default:
@@ -93,6 +89,14 @@ func (c *Cpu) Outputs() []Output {
 
 func (c *Cpu) SetInputs(inputs []Input) {
 	c.inputs = inputs
+}
+
+func (c *Cpu) buildParameters(data []int, parameterModes []ParameterMode) []Parameter {
+	parameters := make([]Parameter, len(data))
+	for i := 0; i < len(data); i++ {
+		parameters[i] = NewParamenter(data[i], parameterModes[i])
+	}
+	return parameters
 }
 
 func (c *Cpu) parseOperation(operation int) (OpCode, []ParameterMode) {
@@ -112,20 +116,64 @@ func (c *Cpu) add(params []Parameter) {
 	a := params[0].Get(c.memory)
 	b := params[1].Get(c.memory)
 	params[2].Set(c.memory, a+b)
+	c.ip += 4
 }
 
 func (c *Cpu) mul(params []Parameter) {
 	a := params[0].Get(c.memory)
 	b := params[1].Get(c.memory)
 	params[2].Set(c.memory, a*b)
+	c.ip += 4
 }
 
 func (c *Cpu) input(params []Parameter) {
 	params[0].Set(c.memory, int(c.inputs[c.currentInputIndex]))
 	c.currentInputIndex++
+	c.ip += 2
 }
 
 func (c *Cpu) output(params []Parameter) {
 	value := params[0].Get(c.memory)
 	c.outputs = append(c.outputs, Output(value))
+	c.ip += 2
+}
+
+func (c *Cpu) jumpIfTrue(params []Parameter) {
+	value := params[0].Get(c.memory)
+	if value != 0 {
+		c.ip = uint32(params[1].Get(c.memory))
+	} else {
+		c.ip += 3
+	}
+}
+
+func (c *Cpu) jumpIfFalse(params []Parameter) {
+	value := params[0].Get(c.memory)
+	if value == 0 {
+		c.ip = uint32(params[1].Get(c.memory))
+	} else {
+		c.ip += 3
+	}
+}
+
+func (c *Cpu) lessThan(params []Parameter) {
+	p1 := params[0].Get(c.memory)
+	p2 := params[1].Get(c.memory)
+	if p1 < p2 {
+		params[2].Set(c.memory, 1)
+	} else {
+		params[2].Set(c.memory, 0)
+	}
+	c.ip += 4
+}
+
+func (c *Cpu) equals(params []Parameter) {
+	p1 := params[0].Get(c.memory)
+	p2 := params[1].Get(c.memory)
+	if p1 == p2 {
+		params[2].Set(c.memory, 1)
+	} else {
+		params[2].Set(c.memory, 0)
+	}
+	c.ip += 4
 }
