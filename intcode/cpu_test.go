@@ -1,4 +1,4 @@
-package main
+package intcode
 
 import (
 	"strconv"
@@ -9,7 +9,7 @@ import (
 func TestCpu_Run(t *testing.T) {
 	testCases := []struct {
 		Instructions string
-		Result       uint32
+		Result       int
 		ResultIndex  uint32
 	}{
 		{
@@ -41,10 +41,10 @@ func TestCpu_Run(t *testing.T) {
 
 	for _, testCase := range testCases {
 		dataArr := strings.Split(testCase.Instructions, ",")
-		cells := make([]uint32, len(dataArr))
+		cells := make([]int, len(dataArr))
 		for k, v := range dataArr {
-			cell, _ := strconv.ParseUint(v, 10, 32)
-			cells[k] = uint32(cell)
+			cell, _ := strconv.ParseInt(v, 10, 32)
+			cells[k] = int(cell)
 		}
 
 		memory := NewMemory()

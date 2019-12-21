@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/dimonzozo/adventofcode/common"
+	"github.com/dimonzozo/adventofcode/intcode"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -11,19 +12,19 @@ func main() {
 	logger := logrus.WithField("method", "main")
 
 	dataArr := strings.Split(common.Input()[0], ",")
-	cells := make([]uint32, len(dataArr))
+	cells := make([]int, len(dataArr))
 	for k, v := range dataArr {
-		cell, _ := strconv.ParseUint(v, 10, 32)
-		cells[k] = uint32(cell)
+		cell, _ := strconv.ParseInt(v, 10, 32)
+		cells[k] = int(cell)
 	}
 
-	memory := NewMemory()
+	memory := intcode.NewMemory()
 	memory.Load(cells)
 
 	memory.Set(1, 12)
 	memory.Set(2, 2)
 
-	cpu := NewCpu(memory)
+	cpu := intcode.NewCpu(memory)
 	cpu.Run()
 
 	logger.Infof("Result: %d", memory.Get(0))
@@ -35,18 +36,18 @@ LOOP:
 		for verb := 0; verb <= 99; verb++ {
 			logger.Debugf("Checking noun %d, and verb %d", noun, verb)
 
-			memory := NewMemory()
+			memory := intcode.NewMemory()
 			memory.Load(cells)
 
-			memory.Set(1, uint32(noun))
-			memory.Set(2, uint32(verb))
+			memory.Set(1, noun)
+			memory.Set(2, verb)
 
-			cpu := NewCpu(memory)
+			cpu := intcode.NewCpu(memory)
 			cpu.Run()
 
-			if memory.Get(0) == uint32(targetResult) {
+			if memory.Get(0) == targetResult {
 				logger.Infof("Result is %d with noun %d, and verb %d", targetResult, noun, verb)
-				logger.Infof("Part 2 result: %d", 100 * noun + verb)
+				logger.Infof("Part 2 result: %d", 100*noun+verb)
 				break LOOP
 			}
 		}
